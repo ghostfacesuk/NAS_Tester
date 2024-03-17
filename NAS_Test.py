@@ -18,10 +18,10 @@ def get_bytes(interface):
         raise ValueError(f"Network interface '{interface}' not found.")
 
 def monitor_disk_performance(interface, interval=1, output_file=None):
-    last_rx, last_tx = get_bytes(interface)
+    last_rx, last_tx = get_bytes(interface) # NIC data
     
-    last_disk_read_count = psutil.disk_io_counters().read_bytes
-    last_disk_write_count = psutil.disk_io_counters().write_bytes
+    last_read_count = psutil.disk_io_counters().read_bytes
+    last_write_count = psutil.disk_io_counters().write_bytes
     
     test_started = False
     low_speed_counter = 0
@@ -33,10 +33,13 @@ def monitor_disk_performance(interface, interval=1, output_file=None):
             print(f"Error: {e}")
             break
         
-        rx_speed = (rx - last_rx) / (1024.0 * 1024.0)  # Received bandwidth in MB/s
-        tx_speed = (tx - last_tx) / (1024.0 * 1024.0)  # Sent bandwidth in MB/s
+        rx_speed = (rx - last_rx) / (1024.0 * 1024.0)  # NIC Received bandwidth in MB/s
+        tx_speed = (tx - last_tx) / (1024.0 * 1024.0)  # NIC Sent bandwidth in MB/s
+
+        current_read_count = psutil.disk_io_counters().read_bytes
+        current_write_count = psutil.disk_io_counters().write_bytes
         
-        if rx_speed >= 5 or tx_speed >= 5:
+        if rx_speed >= 5 or tx_speed >= 5: # NIC speed in MB/s
             if not test_started:
                 print("Test start")
                 output_file.write("Test start\n")
@@ -52,8 +55,8 @@ def monitor_disk_performance(interface, interval=1, output_file=None):
                 test_started = False
         
         if test_started or (not test_started):  # Always print to terminal regardless of test_started
-            disk_read_speed = (rx - last_rx) / (1024.0 * 1024.0)  # Received bandwidth in MB/s
-            disk_write_speed = (tx - last_tx) / (1024.0 * 1024.0)  # Sent bandwidth in MB/s
+            disk_read_speed = (current_read_count - last_read_count) / (1024 * 1024 * interval)  # Convert bytes to MB/s
+            disk_write_speed = (current_write_count - last_write_count) / (1024 * 1024 * interval)  # Convert bytes to MB/s
             output_str = f"NIC Rx {rx_speed:.2f}, Tx {tx_speed:.2f}, DISK Rx {disk_read_speed:.2f}, Tx {disk_write_speed:.2f} MB/s\n"
             print(output_str, end='')  # Print to console without newline
             
