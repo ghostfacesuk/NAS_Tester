@@ -20,8 +20,8 @@ def get_bytes(interface):
 def monitor_disk_performance(interface, interval=1, output_file=None):
     last_rx, last_tx = get_bytes(interface) # NIC data
     
-    last_read_count = psutil.disk_io_counters().read_bytes
-    last_write_count = psutil.disk_io_counters().write_bytes
+    last_read_count = psutil.disk_io_counters().read_bytes # Disk data
+    last_write_count = psutil.disk_io_counters().write_bytes # Disk data
     
     test_started = False
     low_speed_counter = 0
@@ -36,8 +36,8 @@ def monitor_disk_performance(interface, interval=1, output_file=None):
         rx_speed = (rx - last_rx) / (1024.0 * 1024.0)  # NIC Received bandwidth in MB/s
         tx_speed = (tx - last_tx) / (1024.0 * 1024.0)  # NIC Sent bandwidth in MB/s
 
-        current_read_count = psutil.disk_io_counters().read_bytes
-        current_write_count = psutil.disk_io_counters().write_bytes
+        current_read_count = psutil.disk_io_counters().read_bytes # Disk data
+        current_write_count = psutil.disk_io_counters().write_bytes # Disk data
         
         if rx_speed >= 5 or tx_speed >= 5: # NIC speed in MB/s
             if not test_started:
@@ -63,7 +63,9 @@ def monitor_disk_performance(interface, interval=1, output_file=None):
             if output_file and test_started:
                 output_file.write(output_str)
         
-        last_rx, last_tx = rx, tx
+        last_rx, last_tx = rx, tx # NIC data
+        last_read_count = current_read_count # Disk data
+        last_write_count = current_write_count # Disk data
         
         if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
             line = input()
