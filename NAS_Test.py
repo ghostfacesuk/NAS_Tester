@@ -60,7 +60,7 @@ def monitor_disk_performance(interface, interval=1, output_file=None):
             output_str = f"NIC Rx {rx_speed:.2f}, Tx {tx_speed:.2f}, DISK Rx {disk_read_speed:.2f}, Tx {disk_write_speed:.2f} MB/s\n"
             print(output_str, end='')  # Print to console without newline
             
-            if output_file and test_started:
+            if output_file:
                 output_file.write(output_str)
         
         last_rx, last_tx = rx, tx # NIC data
@@ -117,7 +117,7 @@ def main():
     
     filename = get_output_filename()
     with open(filename, "w") as output_file:
-        output_file.write("Test start\n")
+     #   output_file.write("Test start\n") 
         monitor_disk_performance(interface, output_file=output_file)
 
 if __name__ == "__main__":
