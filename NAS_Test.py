@@ -42,9 +42,12 @@ def monitor_disk_performance(interface, interval=1, output_file=None):
         if rx_speed >= 5 or tx_speed >= 5: # NIC speed in MB/s
             if not test_started:
                 print("Test start")
-                output_file.write("Test start\n")
-                test_started = True
-                low_speed_counter = 0
+            if output_file is None:
+                filename = get_output_filename()  # Get new filename
+                output_file = open(filename, "w")  # Open file for writing
+            output_file.write("Test start\n")
+            test_started = True
+            low_speed_counter = 0
         elif test_started:
             low_speed_counter += 1
             if low_speed_counter >= 10:
