@@ -42,12 +42,12 @@ def monitor_disk_performance(interface, interval=1, output_file=None):
         if rx_speed >= 5 or tx_speed >= 5: # NIC speed in MB/s
             if not test_started:
                 print("Test start")
-            if output_file is None:
-                filename = get_output_filename()  # Get new filename
-                output_file = open(filename, "w")  # Open file for writing
-            output_file.write("Test start\n")
-            test_started = True
-            low_speed_counter = 0
+                if output_file is None:
+                    filename = get_output_filename()  # Get new filename
+                    output_file = open(filename, "w")  # Open file for writing
+                output_file.write("Test start\n")
+                test_started = True
+                low_speed_counter = 0
         elif test_started:
             low_speed_counter += 1
             if low_speed_counter >= 10:
@@ -60,7 +60,8 @@ def monitor_disk_performance(interface, interval=1, output_file=None):
         if test_started or (not test_started):  # Always print to terminal regardless of test_started
             disk_read_speed = (current_read_count - last_read_count) / (1024 * 1024 * interval)  # Convert bytes to MB/s
             disk_write_speed = (current_write_count - last_write_count) / (1024 * 1024 * interval)  # Convert bytes to MB/s
-            output_str = f"NIC Rx {rx_speed:.2f}, Tx {tx_speed:.2f}, DISK Rx {disk_read_speed:.2f}, Tx {disk_write_speed:.2f} MB/s\n"
+            mem_usage = psutil.virtual_memory().percent  # Memory usage in percentage
+            output_str = f"NIC Rx {rx_speed:.2f}, Tx {tx_speed:.2f}, DISK Rx {disk_read_speed:.2f}, Tx {disk_write_speed:.2f} MB/s, MEM {mem_usage:.1f}%\n"
             print(output_str, end='')  # Print to console without newline
             
             if output_file:
@@ -120,7 +121,6 @@ def main():
     
     filename = get_output_filename()
     with open(filename, "w") as output_file:
-     #   output_file.write("Test start\n") 
         monitor_disk_performance(interface, output_file=output_file)
 
 if __name__ == "__main__":
